@@ -211,17 +211,15 @@ class BlogsParserController extends Controller
             }
 
         }
-        /*
+
         echo "<table style='border:1px solid black;'>";
         foreach ($blogs_arr as $blog){
-            echo "<tr><td>".$blog."</td><td>".$this->iks_helper("tema.livejournal.com")."</td></tr>";
+            echo "<tr><td>".$blog."</td></tr>";
         }
         echo "</table>";
-        */
 
-        echo $this->iks_helper("tema.livejournal.com");
-        echo $this->iks_helper("tema.livejournal.com");
-        echo $this->iks_helper("tema.livejournal.com");
+
+
     }
 
 

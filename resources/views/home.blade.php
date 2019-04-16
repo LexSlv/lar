@@ -12,7 +12,8 @@
             <tr>
                 <td>
                     <a href="{{action('BlogsParserController@index')}}">Парсер блогов</a><br>
-                    <a href="{{action('BlogsParserController@dead_profiles')}}">Парсер мёртвых профилей</a>
+                    <a href="{{action('BlogsParserController@dead_profiles')}}">Парсер мёртвых профилей</a><br>
+                    <a href="{{action('BlogsParserController@get_all_iks')}}">Список мёртвыйх профилей</a>
                 </td>
             </tr>
         </table>
