@@ -22,3 +22,5 @@ Route::get('/lj-parser', 'BlogsParserController@index');
 Route::get('/lj-profile', 'BlogsParserController@dead_profiles');
 Route::get('/proxy', 'BlogsParserController@proxy');
 Route::get('/proxy-rand', 'BlogsParserController@proxy_rand');
+Route::get('/get-iks', 'BlogsParserController@get_iks');
+Route::get('/get-all-iks', 'BlogsParserController@get_all_iks');

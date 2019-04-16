@@ -17,6 +17,8 @@ class DeadProfiles extends Migration
             $table->increments('id');
             $table->string('parent');
             $table->string('profile');
+            $table->integer('status');
+            $table->integer('iks');
             $table->timestamps();
         });
     }

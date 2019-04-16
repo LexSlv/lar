@@ -15,11 +15,11 @@ class BlogsParserController extends Controller
     public $bloger_id = "";
     public $bloger_check;
     public $lj_api = "";
-    public $proxy = "https://awmproxy.com/freeproxy_a0d1cab10cfee52.txt";
+    public $proxy = "https://awmproxy.com/freeproxy_94ab2d7a45cd949.txt";
 
     public function index()
     {
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 30; $i++) {
             $blogers = DB::select('select * from blogers order by id desc limit 1');
             if (empty($blogers[0])) {
                 (int)$blogers[0] = 0;
@@ -104,7 +104,7 @@ class BlogsParserController extends Controller
                 }
             }
 
-            if(isset($rusult_arr[0]['result'])){
+            if (isset($rusult_arr[0]['result'])) {
                 $this->update_check();
             }
 
@@ -115,9 +115,11 @@ class BlogsParserController extends Controller
                 }
             }
 
-            if(count($dead_profiles_list)>1){
-                foreach ($dead_profiles_list as $profile){
-                    DB::insert("insert into dead_profiles (parent,profile) values (?,?)",[$bloger_profile,$profile]);
+            if (isset($dead_profiles_list)) {
+                if (count($dead_profiles_list) > 1) {
+                    foreach ($dead_profiles_list as $profile) {
+                        DB::insert("insert into dead_profiles (parent,profile,status,iks) values (?,?,?,?)", [$bloger_profile, $profile,"0","0"]);
+                    }
                 }
             }
 
@@ -163,24 +165,64 @@ class BlogsParserController extends Controller
     }
 
 
-    public function update_check(){
+    public function update_check()
+    {
         $bloger_id = $this->bloger_id;
         $bloger_check = $this->bloger_check;
 
         $new_check = $bloger_check + 1;
-        DB::update("update blogers set `check` = :ch where id= :id",[
-                'ch'=>$new_check,
-                'id'=>$bloger_id
+        DB::update("update blogers set `check` = :ch where id= :id", [
+                'ch' => $new_check,
+                'id' => $bloger_id
             ]
         );
     }
 
-    public function update_check_final(){
+    public function update_check_final()
+    {
         $bloger_id = $this->bloger_id;
-        DB::update("update blogers set `check` = :ch where id= :id",[
-                'ch'=>777,
-                'id'=>$bloger_id
+        DB::update("update blogers set `check` = :ch where id= :id", [
+                'ch' => 777,
+                'id' => $bloger_id
             ]
         );
     }
+
+
+    public function get_iks()
+    {
+
+    }
+
+    public function iks_helper($url){
+        return '<script type="text/javascript">!function(e,t,r){e.PrcyCounterObject=r,e[r]=e[r]||function(){(e[r].q=e[r].q||[]).push(arguments)};var c=document.createElement("script");c.type="text/javascript",c.async=1,c.src=t;var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(c,n)}(window,"//a.pr-cy.ru/assets/js/counter.sqi.min.js","prcyCounter"),prcyCounter("'.$url.'","prcyru-sqi-counter",1);</script><div id="prcyru-sqi-counter"></div><noscript><a href="https://pr-cy.ru/" target="_blank"><img src="//a.pr-cy.ru/assets/img/analysis-counter.png" width="88" height="31" alt="Проверка икс"></a></noscript>';
+    }
+
+    public function get_all_iks(){
+        //echo $this->iks_helper("a-i.kz");
+        $blogs = DB::select("select * from dead_profiles");
+        foreach ($blogs as $blog){
+            $blog->profile;
+            $blog->profile = str_replace("https://","",$blog->profile);
+            $blog_url = str_replace("/profile","",$blog->profile);
+
+            if(stristr($blog_url,"www.") == false){
+                $blogs_arr[] = $blog_url;
+            }
+
+        }
+        /*
+        echo "<table style='border:1px solid black;'>";
+        foreach ($blogs_arr as $blog){
+            echo "<tr><td>".$blog."</td><td>".$this->iks_helper("tema.livejournal.com")."</td></tr>";
+        }
+        echo "</table>";
+        */
+
+        echo $this->iks_helper("tema.livejournal.com");
+        echo $this->iks_helper("tema.livejournal.com");
+        echo $this->iks_helper("tema.livejournal.com");
+    }
+
+
 }
