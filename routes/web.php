@@ -24,3 +24,5 @@ Route::get('/proxy', 'BlogsParserController@proxy');
 Route::get('/proxy-rand', 'BlogsParserController@proxy_rand');
 Route::get('/get-iks', 'BlogsParserController@get_iks');
 Route::get('/get-all-iks', 'BlogsParserController@get_all_iks');
+
+Route::get('/test', 'BlogsParserController@test');

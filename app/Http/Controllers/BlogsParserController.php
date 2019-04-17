@@ -6,6 +6,7 @@ use App\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use JonnyW\PhantomJs\Client;
 
 
 class BlogsParserController extends Controller
@@ -118,7 +119,7 @@ class BlogsParserController extends Controller
             if (isset($dead_profiles_list)) {
                 if (count($dead_profiles_list) > 1) {
                     foreach ($dead_profiles_list as $profile) {
-                        DB::insert("insert into dead_profiles (parent,profile,status,iks) values (?,?,?,?)", [$bloger_profile, $profile,"0","0"]);
+                        DB::insert("insert into dead_profiles (parent,profile,status,iks) values (?,?,?,?)", [$bloger_profile, $profile, "0", "0"]);
                     }
                 }
             }
@@ -194,32 +195,66 @@ class BlogsParserController extends Controller
 
     }
 
-    public function iks_helper($url){
-        return '<script type="text/javascript">!function(e,t,r){e.PrcyCounterObject=r,e[r]=e[r]||function(){(e[r].q=e[r].q||[]).push(arguments)};var c=document.createElement("script");c.type="text/javascript",c.async=1,c.src=t;var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(c,n)}(window,"//a.pr-cy.ru/assets/js/counter.sqi.min.js","prcyCounter"),prcyCounter("'.$url.'","prcyru-sqi-counter",1);</script><div id="prcyru-sqi-counter"></div><noscript><a href="https://pr-cy.ru/" target="_blank"><img src="//a.pr-cy.ru/assets/img/analysis-counter.png" width="88" height="31" alt="Проверка икс"></a></noscript>';
+    public function iks_helper($url)
+    {
+        return '<script type="text/javascript">!function(e,t,r){e.PrcyCounterObject=r,e[r]=e[r]||function(){(e[r].q=e[r].q||[]).push(arguments)};var c=document.createElement("script");c.type="text/javascript",c.async=1,c.src=t;var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(c,n)}(window,"//a.pr-cy.ru/assets/js/counter.sqi.min.js","prcyCounter"),prcyCounter("' . $url . '","prcyru-sqi-counter",1);</script><div id="prcyru-sqi-counter"></div><noscript><a href="https://pr-cy.ru/" target="_blank"><img src="//a.pr-cy.ru/assets/img/analysis-counter.png" width="88" height="31" alt="Проверка икс"></a></noscript>';
     }
 
-    public function get_all_iks(){
+    public function get_all_iks()
+    {
         //echo $this->iks_helper("a-i.kz");
         $blogs = DB::select("select * from dead_profiles");
-        foreach ($blogs as $blog){
+        foreach ($blogs as $blog) {
             $blog->profile;
-            $blog->profile = str_replace("https://","",$blog->profile);
-            $blog_url = str_replace("/profile","",$blog->profile);
+            $blog->profile = str_replace("https://", "", $blog->profile);
+            $blog_url = str_replace("/profile", "", $blog->profile);
 
-            if(stristr($blog_url,"www.") == false){
+            if (stristr($blog_url, "www.") == false) {
                 $blogs_arr[] = $blog_url;
             }
 
         }
 
         echo "<table style='border:1px solid black;'>";
-        foreach ($blogs_arr as $blog){
-            echo "<tr><td>".$blog."</td></tr>";
+        foreach ($blogs_arr as $blog) {
+            echo "<tr><td>" . $blog . "</td></tr>";
         }
         echo "</table>";
 
 
+    }
 
+
+    public function be1_iks($url)
+    {
+        $client = Client::getInstance();
+        $client->getEngine()->setPath(__DIR__ . '/phantomjs/bin/phantomjs.exe');
+
+        $request = $client->getMessageFactory()->createRequest('https://be1.ru/yandex-iks/?domains=' . $url, 'GET');
+        $response = $client->getMessageFactory()->createResponse();
+
+        $client->send($request, $response);
+
+        if ($response->getStatus() === 200) {
+            $html_body = $response->getContent();
+        } else {
+            die("Не загрузилось :(");
+        }
+
+        preg_match('/\<div id\=\"tool-result\"\>(.*)\<\/div\>/Uis', $html_body, $html_rezult);
+        preg_match_all('/\<td class\=\"text\-center\"\>(.*)\<\/td\>/Uis', $html_rezult[0], $iks);
+
+        if (is_numeric($iks[1][1])) {
+            return $iks[1][1];
+        } else {
+            return 0;
+        }
+
+    }
+
+    public function test()
+    {
+        echo $this->be1_iks("tema.livejournal.com");
     }
 
 
