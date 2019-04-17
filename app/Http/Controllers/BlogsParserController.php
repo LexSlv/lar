@@ -202,24 +202,41 @@ class BlogsParserController extends Controller
 
     public function get_all_iks()
     {
-        //echo $this->iks_helper("a-i.kz");
-        $blogs = DB::select("select * from dead_profiles");
+        $blogs = DB::select("select * from dead_profiles WHERE status=0 LIMIT 3");
+
         foreach ($blogs as $blog) {
             $blog->profile;
             $blog->profile = str_replace("https://", "", $blog->profile);
             $blog_url = str_replace("/profile", "", $blog->profile);
-
             if (stristr($blog_url, "www.") == false) {
-                $blogs_arr[] = $blog_url;
+                $blogs_arr[$blog->id] = $blog_url;
+            } else {
+                $del_blogs[] = $blog->id;
             }
 
         }
 
-        echo "<table style='border:1px solid black;'>";
-        foreach ($blogs_arr as $blog) {
-            echo "<tr><td>" . $blog . "</td></tr>";
+        if (isset($del_blogs)) {
+            if (count($del_blogs) > 1) {
+                foreach ($del_blogs as $del_blog) {
+                    echo $del_blog;
+                    echo "<br>";
+                    DB::delete("delete from dead_profiles where id=?",[$del_blog]);
+                }
+            }
         }
-        echo "</table>";
+
+
+        foreach ($blogs_arr as $id=>$blog) {
+            echo $iks = $this->be1_iks($blog);
+            echo "<hr>";
+            if(is_numeric($iks)){
+                DB::update("update dead_profiles set status=1, iks=:iks where id=:id",['id'=>$id, 'iks'=>$iks]);
+            }else{
+                DB::update("update dead_profiles set status=2 where id=?",[$id]);
+            }
+        }
+
 
 
     }
