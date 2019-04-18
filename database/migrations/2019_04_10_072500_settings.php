@@ -28,8 +28,6 @@ class Settings extends Migration
      */
     public function down()
     {
-        Schema::create('settings', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('settings');
     }
 }

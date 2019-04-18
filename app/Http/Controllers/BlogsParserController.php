@@ -56,7 +56,7 @@ class BlogsParserController extends Controller
 
             if ($urls[0] <> "") {
                 foreach ($urls as $url) {
-                    DB::insert('insert into blogers (url, platform, page, `check`) values (?, ?, ?, ?)', [$url, 'lj', $page, 0]);
+                    DB::insert('insert into blogers (url, platform, page, check_status) values (?, ?, ?, ?)', [$url, 'lj', $page, 0]);
                 }
             }
 
@@ -131,12 +131,12 @@ class BlogsParserController extends Controller
 
     public function get_profile_username()
     {
-        $blogers = DB::select('SELECT id,url,`check` FROM blogers WHERE `check`<20 ORDER BY `check`,id ASC limit 1');
+        $blogers = DB::select('SELECT id,url,check_status FROM blogers WHERE check_status<20 ORDER BY check_status,id ASC limit 1');
         preg_match('/https\:\/\/(.*)\./Uis', $blogers[0]->url, $bloger);
         $this->bloger = $bloger[1];
         $this->bloger_id = $blogers[0]->id;
         $this->bloger_profile = $blogers[0]->url . "/profile";
-        $this->bloger_check = $blogers[0]->check;
+        $this->bloger_check = $blogers[0]->check_status;
     }
 
     public function get_lj_api_access($bloger_profile)
@@ -172,7 +172,7 @@ class BlogsParserController extends Controller
         $bloger_check = $this->bloger_check;
 
         $new_check = $bloger_check + 1;
-        DB::update("update blogers set `check` = :ch where id= :id", [
+        DB::update("update blogers set check_status = :ch where id= :id", [
                 'ch' => $new_check,
                 'id' => $bloger_id
             ]
@@ -182,7 +182,7 @@ class BlogsParserController extends Controller
     public function update_check_final()
     {
         $bloger_id = $this->bloger_id;
-        DB::update("update blogers set `check` = :ch where id= :id", [
+        DB::update("update blogers set check_status = :ch where id= :id", [
                 'ch' => 777,
                 'id' => $bloger_id
             ]
